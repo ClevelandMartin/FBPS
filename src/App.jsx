@@ -59,16 +59,16 @@ function App() {
       <button onClick={addFretToAll}>Add Fret to All Strings</button>
       <button onClick={removeFretFromAll}>Remove Fret from All Strings</button>
       &nbsp;
-      {guitarStrings.map(guitarString => (<Fragment key={guitarString.id}>
-        <button onClick={() => shiftNutNoteUp(guitarString.id)}>Shift Nut Note Up</button>
-        <button onClick={() => shiftNutNoteDown(guitarString.id)}>Shift Nut Note Down</button>
+      {[...guitarStrings].reverse().map(guitarString => (<Fragment key={guitarString.id}>
+        <button style={{ width: '20%' }} onClick={() => shiftNutNoteUp(guitarString.id)}>Shift Nut Note Up</button>
+        <button style={{ width: '20%' }} onClick={() => shiftNutNoteDown(guitarString.id)}>Shift Nut Note Down</button>
         <String
           nutNote={guitarString.nutNote}
           noteList={notes}
           fretCount={fretCount}
         />
-        <button onClick={() => removeString(guitarString.id)}>Remove String</button>
-              &nbsp;
+        <button  style={{ width: '20%' }} onClick={() => removeString(guitarString.id)}>Remove String</button>
+        &nbsp;
 
         </Fragment>
       ))}
