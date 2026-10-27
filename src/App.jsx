@@ -69,7 +69,6 @@ function App() {
         />
         <button  style={{ width: '20%' }} onClick={() => removeString(guitarString.id)}>Remove String</button>
         &nbsp;
-
         </Fragment>
       ))}
     </>
