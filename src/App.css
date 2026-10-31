@@ -845,12 +845,53 @@ button:disabled {
 	white-space: nowrap;
 }
 
+.pentatonic-toggle.is-disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
 .pentatonic-toggle input {
 	width: 16px;
 	height: 16px;
 	margin: 0;
 	accent-color: #b66c36;
 	cursor: pointer;
+}
+
+.pentatonic-toggle input:disabled {
+	cursor: not-allowed;
+}
+
+.interval-legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 12px;
+	margin-top: 16px;
+	padding-top: 12px;
+	border-top: 1px solid #d7dcd5;
+}
+
+.interval-legend-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	color: #52665a;
+	font-size: 12px;
+	font-weight: 650;
+	line-height: 1;
+}
+
+.interval-swatch {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border-radius: 4px;
+	border: 1px solid rgba(38, 59, 52, 0.2);
+	box-sizing: border-box;
+}
+
+.interval-label {
+	white-space: nowrap;
 }
 
 .board-composition {

@@ -95,7 +95,30 @@ function App() {
     ...(showPentatonic ? pentatonicNotes : []),
     ...(showIonianPentatonic ? ionianPentatonicNotes : []),
   ]
-  const hasHighlightSelection = Boolean(selectedKey) || showIntervals || showPentatonic || showIonianPentatonic
+  const activeHighlightNotes = showPentatonic
+    ? pentatonicNotes
+    : showIonianPentatonic
+      ? ionianPentatonicNotes
+      : selectedKey
+        ? keyNotes
+        : []
+  const intervalHighlightNotes = selectedKey && showIntervals
+    ? showPentatonic
+      ? pentatonicNotes
+      : showIonianPentatonic
+        ? ionianPentatonicNotes
+        : keyNotes
+    : []
+  const intervalLegend = [
+    { label: 'Root', color: scaleDegreeColors[0] },
+    { label: '2nd', color: scaleDegreeColors[1] },
+    { label: '3rd', color: scaleDegreeColors[2] },
+    { label: '4th', color: scaleDegreeColors[3] },
+    { label: '5th', color: scaleDegreeColors[4] },
+    { label: '6th', color: scaleDegreeColors[5] },
+    { label: '7th', color: scaleDegreeColors[6] },
+  ]
+  const hasHighlightSelection = activeHighlightNotes.length > 0 || intervalHighlightNotes.length > 0
   const fretInlayMarkers = Array.from({ length: fretCount - 1 }, (_, index) => index + 1)
     .flatMap(fretNumber => {
       const normalized = fretNumber % 12
@@ -160,6 +183,9 @@ function App() {
                 const isKeyNote = keyNotes.includes(note)
                 const isRootNote = note === selectedKey
                 const isPentatonicNote = outlinedPentatonicNotes.includes(note)
+                const isHighlighted = !hasHighlightSelection
+                  ? true
+                  : activeHighlightNotes.includes(note) || intervalHighlightNotes.includes(note)
                 return (
                   <div className="open-note" key={guitarString.id}>
                   <motion.span
@@ -167,9 +193,7 @@ function App() {
                     layoutId={`string-${guitarString.id}-pitch-${guitarString.pitch}`}
                     transition={{ type: 'spring', stiffness: 320, damping: 30 }}
                     animate={{
-                      opacity: outlinedPentatonicNotes.length
-                        ? isPentatonicNote ? 1 : 0.35
-                        : selectedKey && !isKeyNote ? 0.35 : 1,
+                      opacity: isHighlighted ? 1 : 0,
                       backgroundColor: !selectedKey && !showIntervals && !showPentatonic && !showIonianPentatonic
                         ? 'transparent'
                         : isRootNote ? '#aebca8' : isKeyNote ? showIntervals ? keyNoteColors[note] : '#9dbbc8' : 'transparent',
@@ -215,6 +239,8 @@ function App() {
                     pentatonicNotes={outlinedPentatonicNotes}
                     rootNote={selectedKey}
                     hasHighlightSelection={hasHighlightSelection}
+                    activeHighlightNotes={activeHighlightNotes}
+                    intervalHighlightNotes={intervalHighlightNotes}
                     getNote={getNote}
                   />
                 ))}
@@ -225,7 +251,19 @@ function App() {
               <div className="scale-selectors">
                 <div className="key-selector">
                   <label htmlFor="key-select">Key</label>
-                  <select id="key-select" value={selectedKey} onChange={event => setSelectedKey(event.target.value)}>
+                  <select
+                    id="key-select"
+                    value={selectedKey}
+                    onChange={event => {
+                      const nextKey = event.target.value
+                      setSelectedKey(nextKey)
+                      if (!nextKey) {
+                        setShowIntervals(false)
+                        setShowPentatonic(false)
+                        setShowIonianPentatonic(false)
+                      }
+                    }}
+                  >
                     <option value="">None</option>
                     {notes.map(note => <option key={note} value={note}>{note}</option>)}
                   </select>
@@ -236,21 +274,27 @@ function App() {
                     {Object.keys(modes).map(mode => <option key={mode} value={mode}>{mode[0].toUpperCase() + mode.slice(1)}</option>)}
                   </select>
                 </div>
-                <label className="pentatonic-toggle" htmlFor="show-intervals">
+                <label className={`pentatonic-toggle${!selectedKey ? ' is-disabled' : ''}`} htmlFor="show-intervals">
                   <input
                     id="show-intervals"
                     type="checkbox"
                     checked={showIntervals}
-                    onChange={event => setShowIntervals(event.target.checked)}
+                    disabled={!selectedKey}
+                    onChange={event => {
+                      if (!selectedKey) return
+                      setShowIntervals(event.target.checked)
+                    }}
                   />
                   Show Intervals
                 </label>
-                <label className="pentatonic-toggle" htmlFor="show-pentatonic">
+                <label className={`pentatonic-toggle${!selectedKey ? ' is-disabled' : ''}`} htmlFor="show-pentatonic">
                   <input
                     id="show-pentatonic"
                     type="checkbox"
                     checked={showPentatonic}
+                    disabled={!selectedKey}
                     onChange={event => {
+                      if (!selectedKey) return
                       const checked = event.target.checked
                       setShowPentatonic(checked)
                       if (checked) setShowIonianPentatonic(false)
@@ -258,12 +302,14 @@ function App() {
                   />
                   Show pentatonic
                 </label>
-                <label className="pentatonic-toggle" htmlFor="show-ionian-pentatonic">
+                <label className={`pentatonic-toggle${!selectedKey ? ' is-disabled' : ''}`} htmlFor="show-ionian-pentatonic">
                   <input
                     id="show-ionian-pentatonic"
                     type="checkbox"
                     checked={showIonianPentatonic}
+                    disabled={!selectedKey}
                     onChange={event => {
+                      if (!selectedKey) return
                       const checked = event.target.checked
                       setShowIonianPentatonic(checked)
                       if (checked) setShowPentatonic(false)
@@ -271,6 +317,14 @@ function App() {
                   />
                   Ionian Pentatonic
                 </label>
+                <div className="interval-legend" aria-label="Interval color key">
+                  {intervalLegend.map(({ label, color }) => (
+                    <div className="interval-legend-item" key={label}>
+                      <span className="interval-swatch" style={{ backgroundColor: color }} aria-hidden="true" />
+                      <span className="interval-label">{label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
