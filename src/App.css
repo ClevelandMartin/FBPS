@@ -274,6 +274,7 @@ button:disabled {
 	display: grid;
 	place-items: center;
 	min-width: 0;
+	overflow: visible;
 	border-bottom: 1px solid rgba(182, 167, 125, 0.34);
 	border-left: 2px solid rgba(62, 42, 24, 0.58);
 	color: #241a12;
@@ -287,6 +288,50 @@ button:disabled {
 	padding: 1px 3px;
 	background: var(--board-color);
 	text-align: center;
+}
+
+.fretboard-layout {
+	position: relative;
+	isolation: isolate;
+}
+
+.fretboard-marker-layer {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+}
+
+.fretboard-marker-set {
+	position: absolute;
+	top: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transform: translate(-50%, 18px);
+	z-index: 1;
+}
+
+.fretboard-marker-set--double {
+	gap: 16px;
+}
+
+.fretboard-marker {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #b49367;
+	box-shadow: inset 0 0 0 1px rgba(45, 28, 17, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.18);
+	opacity: 1;
+}
+
+.note-position,
+.note-position span,
+.note-label,
+.note-label.key-note,
+.note-label.root-note {
+	position: relative;
+	z-index: 2;
 }
 
 .fret-labels {

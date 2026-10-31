@@ -95,6 +95,20 @@ function App() {
     ...(showPentatonic ? pentatonicNotes : []),
     ...(showIonianPentatonic ? ionianPentatonicNotes : []),
   ]
+  const hasHighlightSelection = Boolean(selectedKey) || showIntervals || showPentatonic || showIonianPentatonic
+  const fretInlayMarkers = Array.from({ length: fretCount - 1 }, (_, index) => index + 1)
+    .flatMap(fretNumber => {
+      const normalized = fretNumber % 12
+      if (normalized === 3 || normalized === 5 || normalized === 7 || normalized === 9) {
+        return [{ fretNumber, stringPositions: [2] }]
+      }
+
+      if (normalized === 0) {
+        return [{ fretNumber, stringPositions: [0, 4] }]
+      }
+
+      return []
+    })
   const getNote = pitch => notes[(pitch % notes.length + notes.length) % notes.length]
 
   return (
@@ -156,7 +170,9 @@ function App() {
                       opacity: outlinedPentatonicNotes.length
                         ? isPentatonicNote ? 1 : 0.35
                         : selectedKey && !isKeyNote ? 0.35 : 1,
-                      backgroundColor: isRootNote ? '#aebca8' : isKeyNote ? showIntervals ? keyNoteColors[note] : '#9dbbc8' : 'transparent',
+                      backgroundColor: !selectedKey && !showIntervals && !showPentatonic && !showIonianPentatonic
+                        ? 'transparent'
+                        : isRootNote ? '#aebca8' : isKeyNote ? showIntervals ? keyNoteColors[note] : '#9dbbc8' : 'transparent',
                       color: isRootNote ? '#263b34' : isKeyNote ? '#20343c' : selectedKey ? '#95836e' : '#3d3024',
                     }}
                     className={`note-label${isKeyNote ? ' key-note' : ''}${isRootNote ? ' root-note' : ''}`}
@@ -169,6 +185,24 @@ function App() {
             </div>
             <div className="fretboard-column">
               <div className="fretboard-layout">
+                <div className="fretboard-marker-layer" aria-hidden="true">
+                  {fretInlayMarkers.flatMap(({ fretNumber, stringPositions }) => {
+                    const color = showIntervals && selectedKey ? '#d1b68b' : '#b49367'
+
+                    return stringPositions.map(stringIndex => (
+                      <div
+                        key={`${fretNumber}-${stringIndex}`}
+                        className={`fretboard-marker-set${stringPositions.length > 1 ? ' fretboard-marker-set--double' : ''}`}
+                        style={{
+                          left: `${((fretNumber - 0.5) / (fretCount - 1)) * 100}%`,
+                          top: `${((stringIndex + 0.5) / guitarStrings.length) * 100}%`,
+                        }}
+                      >
+                        <span className="fretboard-marker" style={{ backgroundColor: color }} />
+                      </div>
+                    ))
+                  })}
+                </div>
                 {displayedStrings.map(guitarString => (
                   <String
                     key={guitarString.id}
@@ -180,6 +214,7 @@ function App() {
                     showIntervals={showIntervals}
                     pentatonicNotes={outlinedPentatonicNotes}
                     rootNote={selectedKey}
+                    hasHighlightSelection={hasHighlightSelection}
                     getNote={getNote}
                   />
                 ))}

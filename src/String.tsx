@@ -9,10 +9,11 @@ interface StringProps {
   showIntervals: boolean;
   pentatonicNotes: string[];
   rootNote: string;
+  hasHighlightSelection: boolean;
   getNote: (pitch: number) => string;
 }
 
-function String({ stringId, nutPitch, fretCount, keyNotes, keyNoteColors, showIntervals, pentatonicNotes, rootNote, getNote }: StringProps) {
+function String({ stringId, nutPitch, fretCount, keyNotes, keyNoteColors, showIntervals, pentatonicNotes, rootNote, hasHighlightSelection, getNote }: StringProps) {
   const pitches = Array.from({ length: fretCount - 1 }, (_, index) => nutPitch + index + 1);
 
   return (
@@ -31,7 +32,9 @@ function String({ stringId, nutPitch, fretCount, keyNotes, keyNoteColors, showIn
               opacity: pentatonicNotes.length
                 ? isPentatonicNote ? 1 : 0.35
                 : keyNotes.length && !isKeyNote ? 0.35 : 1,
-              backgroundColor: isRootNote ? '#aebca8' : isKeyNote ? showIntervals ? keyNoteColors[note] : '#9dbbc8' : '#705744',
+              backgroundColor: !hasHighlightSelection
+                ? 'transparent'
+                : isRootNote ? '#aebca8' : isKeyNote ? showIntervals ? keyNoteColors[note] : '#9dbbc8' : '#705744',
               color: isRootNote ? '#263b34' : isKeyNote ? '#20343c' : keyNotes.length ? '#b1a99f' : '#f0ebe4',
             }}
             className={`note-label${isKeyNote ? ' key-note' : ''}${isRootNote ? ' root-note' : ''}`}
